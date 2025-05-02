@@ -1,4 +1,6 @@
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.*;
@@ -7,10 +9,33 @@ import javax.servlet.http.*;
 public class EnrollServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
-        // TODO: Implement enrollment logic
-        // 1. Get courseId from URL parameter
-        // 2. Get current user's session
-        // 3. Add course to enrolled list in session
-        // 4. Redirect back to DashboardServlet
+        String courseId = request.getParameter("courseId");
+
+        HttpSession session = request.getSession();
+
+        List<Course> allCourses = (List<Course>) session.getAttribute("allCourses");
+
+        Course selectedCourse = null;
+        for (Course c : allCourses) {
+            if (c.getCourseId().equals(courseId)) {
+                selectedCourse = c;
+                break;
+            }
+        }
+
+        if (selectedCourse != null) {
+            List<Course> enrolledCourses = (List<Course>) session.getAttribute("enrolledCourses");
+            if (enrolledCourses == null) {
+                enrolledCourses = new ArrayList<>();
+            }
+
+            if (!enrolledCourses.contains(selectedCourse)) {
+                enrolledCourses.add(selectedCourse);
+            }
+
+            session.setAttribute("enrolledCourses", enrolledCourses);
+        }
+        
+        response.sendRedirect("DashboardServlet");
     }
 }
